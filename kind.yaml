@@ -1,0 +1,35 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  apiServerPort: 45451
+nodes:
+- role: control-plane
+  image: kindest/node:v1.32.2
+  labels:
+    mission-control.datastax.com/role: platform
+  extraPortMappings:
+    - containerPort: 30880
+      hostPort: 30880
+      listenAddress: "0.0.0.0" # Optional, defaults to "0.0.0.0"
+      protocol: tcp # Optional, defaults to tcp
+    - containerPort: 30081
+      hostPort: 30081
+      listenAddress: "0.0.0.0"
+      protocol: tcp
+    - containerPort: 30001 # Data API nodePort
+      hostPort: 30001
+      listenAddress: "0.0.0.0" # Optional, defaults to "0.0.0.0"
+      protocol: tcp # Optional, defaults to tcp
+
+- role: worker
+  image: kindest/node:v1.32.2
+  labels:
+    mission-control.datastax.com/role: platform
+- role: worker
+  image: kindest/node:v1.32.2
+  labels:
+    mission-control.datastax.com/role: platform
+- role: worker
+  image: kindest/node:v1.32.2
+  labels:
+    mission-control.datastax.com/role: platform

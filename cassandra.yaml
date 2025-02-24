@@ -1,0 +1,73 @@
+apiVersion: missioncontrol.datastax.com/v1beta2
+kind: MissionControlCluster
+metadata:
+  name: cassandra
+  namespace: demo-1wx3a235
+spec:
+  createIssuer: true
+  dataApi:
+    enabled: false
+  encryption:
+    internodeEncryption:
+      certs:
+        createCerts: true
+      enabled: true
+  k8ssandra:
+    auth: true
+    cassandra:
+      config:
+        cassandraYaml: {}
+        dseYaml: {}
+        jvmOptions:
+          gc: G1GC
+          heapSize: 1Gi
+      datacenters:
+        - config:
+            cassandraYaml: {}
+            dseYaml: {}
+          datacenterName: dc-1
+          dseWorkloads:
+            graphEnabled: false
+            searchEnabled: false
+          k8sContext: ''
+          metadata:
+            name: cassandra-dc-1
+            pods: {}
+            services:
+              additionalSeedService: {}
+              allPodsService: {}
+              dcService: {}
+              nodePortService: {}
+              seedService: {}
+          networking: {}
+          perNodeConfigMapRef: {}
+          racks:
+            - name: rack-1
+              nodeAffinityLabels: {}
+            - name: rack-2
+              nodeAffinityLabels: {}
+            - name: rack-3
+              nodeAffinityLabels: {}
+          size: 3
+          stopped: false
+      resources:
+        requests:
+          cpu: "1000m"
+          memory: "2Gi"
+        limits:
+          cpu: "1000m"
+          memory: "2Gi"
+      serverImage: ''
+      serverType: cassandra
+      serverVersion: 5.0.2
+      storageConfig:
+        cassandraDataVolumeClaimSpec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
+          storageClassName: standard
+      superuserSecretRef:
+        name: cassandra-superuser
+      softPodAntiAffinity: true

@@ -1,0 +1,73 @@
+apiVersion: missioncontrol.datastax.com/v1beta2
+kind: MissionControlCluster
+metadata:
+  name: dse
+  namespace: demo-1wx3a235
+spec:
+  createIssuer: true
+  dataApi:
+    enabled: false
+  encryption:
+    internodeEncryption:
+      certs:
+        createCerts: true
+      enabled: true
+  k8ssandra:
+    auth: true
+    cassandra:
+      config:
+        cassandraYaml: {}
+        dseYaml: {}
+        jvmOptions:
+          gc: G1GC
+          heapSize: 1Gi
+      softPodAntiAffinity: true
+      resources:
+        requests:
+          cpu: "1000m"
+          memory: "2Gi"
+        limits:
+          cpu: "1000m"
+          memory: "3Gi"
+      datacenters:
+        - config:
+            cassandraYaml: {}
+            dseYaml: {}
+          datacenterName: dc1
+          dseWorkloads:
+            graphEnabled: false
+            searchEnabled: false
+          k8sContext: ''
+          metadata:
+            name: dse-dc1
+            pods: {}
+            services:
+              additionalSeedService: {}
+              allPodsService: {}
+              dcService: {}
+              nodePortService: {}
+              seedService: {}
+          networking: {}
+          perNodeConfigMapRef: {}
+          racks:
+            - name: rack-1
+              nodeAffinityLabels: {}
+            - name: rack-2
+              nodeAffinityLabels: {}
+            - name: rack-3
+              nodeAffinityLabels: {}
+          size: 3
+          stopped: false
+      serverImage: erikmerkle/dse-mgmtapi-6_8:6.9.6-jdk11-arm
+      serverType: dse
+      serverVersion: 6.9.4
+      storageConfig:
+        cassandraDataVolumeClaimSpec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 2Gi
+          storageClassName: standard
+      superuserSecretRef:
+        name: dse-superuser
