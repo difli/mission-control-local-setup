@@ -1,4 +1,4 @@
-# **Setup DataStax Mission Control on macOS with Kind**
+# **Setup DataStax Mission Control on your local computer with Kind**
 
 This guide walks you through setting up **DataStax Mission Control** on a **local Kubernetes cluster** using **Kind (Kubernetes in Docker)** on macOS.
 
