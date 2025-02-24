@@ -10,7 +10,7 @@ With this setup, you can explore, test, and demo **Mission Control-managed** **C
 Ensure you have the following installed on your Mac:
 
 - [Docker](https://www.docker.com/get-started/)  
-  Ensure you configure **sufficient resources** for Docker. I have **30 GB RAM and 12 CPUs** allocated for the Docker engine.
+  Configure **sufficient resources** for Docker. While it works with fewer resources, I allocated **30 GB RAM and 12 CPUs** for optimal performance—if you have the resources, why not use them?
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/)
 - [Helm](https://helm.sh/docs/intro/install/)
 - [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/)
