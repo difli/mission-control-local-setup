@@ -111,6 +111,10 @@ kubectl kots version
 ```sh
 kubectl kots install mission-control --namespace mission-control
 ```
+or, install a specific version mission-control version
+```sh
+kubectl kots install mission-control --namespace mission-control --app-version-label=v1.9.0
+```
 
 ### **3.3 Configure Mission Control**
 1. **Enter a password for the Admin Console** when prompted.
@@ -128,7 +132,7 @@ kubectl kots install mission-control --namespace mission-control
 
 6. Click **"Download Mission Control from the Internet."**
 
-   ![KOTS MC from Internet](assets/kots-mission-control-from-internet.png) 
+   ![KOTS MC from Internet](assets/kots-mission-control-from-internet.png)
 
 7. **Generate a password** for Mission Control login:
    ```sh
