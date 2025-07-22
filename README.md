@@ -134,20 +134,11 @@ kubectl kots install mission-control --namespace mission-control --app-version-l
 
    ![KOTS MC from Internet](assets/kots-mission-control-from-internet.png)
 
-7. **Generate a password** for Mission Control login:
-   ```sh
-   echo password | htpasswd -BinC 10 admin | cut -d: -f2
-   ```
-   Example output:
-   ```
-   $2y$10$NUI5VjziPkOEQi2WVjlVOuzllzmy6gyAsts4T5YchHXejwwlJB4.a
-   ```
-8. **Copy the generated password** into the password field.
-9. Review and confirm the configuration.
+7. Review and confirm the configuration.
 
    ![KOTS MC Configuration](assets/kots-mission-control-config.png)   
 
-10. Click **"Continue"** and then **"Deploy."**
+8. Click **"Continue"** and then **"Deploy."**
 
 ---
 
