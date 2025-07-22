@@ -140,6 +140,12 @@ kubectl kots install mission-control --namespace mission-control --app-version-l
 
 8. Click **"Continue"** and then **"Deploy."**
 
+9. Preflight checks validate
+
+   ![KOTS Preflight checks](assets/kots-mission-control-preflight-checks.png)   
+
+8. Click **"Deploy."**
+
 ---
 
 ## **4. Access the Mission Control Admin Console**
