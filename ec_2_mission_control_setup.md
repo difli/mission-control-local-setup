@@ -165,10 +165,12 @@ kubectl get nodes
 Run this on your **local machine** to forward UI ports from the EC2 instance:
 
 ```bash
-ssh -i dieter-key.pem \
-  -L 8800:localhost:8800 \
-  -L 30880:localhost:30880 \
-  ubuntu@3.122.56.88
+  ssh -i dieter-key.pem \
+    -L 8800:localhost:8800 \
+    -L 30880:localhost:30880 \
+    -L 30005:localhost:30005 \
+    -L 3000:localhost:3000 \
+    ubuntu@3.122.56.88
 ```
 
 - Access **KOTS Admin Console** at: [http://localhost:8800](http://localhost:8800) later
