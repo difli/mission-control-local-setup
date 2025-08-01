@@ -6,6 +6,13 @@ With this setup, you can explore, test, and demo **Mission Control-managed** **C
 
 ---
 
+## 📚 Workshop Materials
+
+- [Mission Control + HCD Setup Instructions](./ec_2_mission_control_setup.md)
+- [👩‍💻 Attendee Hands-On Guide for Mission Control & HCD Workshop](./attendee_guide.md)
+
+---
+
 ## **Prerequisites**
 Ensure you have the following installed on your Mac:
 
