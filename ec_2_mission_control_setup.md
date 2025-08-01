@@ -168,7 +168,7 @@ Run this on your **local machine** to forward UI ports from the EC2 instance:
   ssh -i dieter-key.pem \
     -L 8800:localhost:8800 \
     -L 30880:localhost:30880 \
-    -L 30005:localhost:30005 \
+    -L 30001:localhost:30001 \
     -L 3000:localhost:3000 \
     ubuntu@3.122.56.88
 ```

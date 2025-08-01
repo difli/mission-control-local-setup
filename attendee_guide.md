@@ -116,23 +116,23 @@ Once the UI indicates all nodes are **Up** (usually shown in green or with a che
   * Select the datacenter (choose **dc1** if prompted for which datacenter to expose).
   * For **Replicas**, enter **1** (one Stargate node is sufficient for development/testing; in production you might run 2+ for HA).
   * For **Service Type**, choose **NodePort** (this will expose the API on a port accessible outside the cluster nodes; the other option is ClusterIP which is internal-only).
-  * For **Port Number**, specify a port in the 30000-32767 range (the NodePort range). For example, enter **30005**.
+  * For **Port Number**, specify a port in the 30000-32767 range (the NodePort range). For example, enter ****.
   * Click **Add Gateway** to deploy the Data API gateway.
 
   Mission Control will now deploy a Stargate Data API pod (or pods) in the cluster’s namespace. Within a minute, you should see a new pod (and a service) for the Data API. Once it’s running, the Data API gateway is active. The UI will list the gateway (with the datacenter and port info) in the APIs section.
 
-* *Access the Data API:* Since we chose a NodePort service on port 30005, the Data API can be reached at `http://<NodeIP>:30005` where `<NodeIP>` is the IP or DNS of any Kubernetes worker node in your cluster. If your Kubernetes cluster nodes are not directly accessible (e.g., in a cloud or if you’re using KinD locally), you can port-forward this service to your local machine for testing. For example:
+* *Access the Data API:* Since we chose a NodePort service on port 30001, the Data API can be reached at `http://<NodeIP>:30001` where `<NodeIP>` is the IP or DNS of any Kubernetes worker node in your cluster. If your Kubernetes cluster nodes are not directly accessible (e.g., in a cloud or if you’re using KinD locally), you can port-forward this service to your local machine for testing. For example:
 
   ```bash
   # Port-forward the Data API pod to localhost for testing
-  kubectl port-forward -n <cluster-namespace> pod/<your-data-api-pod-name> 30005:8082
+  kubectl port-forward -n <cluster-namespace> pod/<your-data-api-pod-name> 30001:8082
   ```
 
   (In many cases the Stargate gateway listens on port 8082 or 8181 internally; the exact target port might depend on the configuration. Mission Control documentation indicates the default for HCD’s Data API is port 8082 for the REST API. We use 8082 in this example.)
 
   Replace `<cluster-namespace>` with the Kubernetes namespace where your cluster’s pods are running (Mission Control typically creates a unique namespace for each cluster, such as `demo-cluster-namespace`). Replace `<your-data-api-pod-name>` with the actual name of the Data API pod (you can find it by running `kubectl get pods -n <cluster-namespace>`; it will have a name like `demo-cluster-dc1-stargate-...` or `...-data-api-...`).
 
-  Now, with the port-forward in place, open a browser to **[http://localhost:30005/swagger-ui/](http://localhost:30005/swagger-ui/)**. This will bring up the Swagger UI for the Stargate Data APIs. You can explore the available REST endpoints and even execute test calls from this interface. For instance, you’ll see sections for the Document API, CQL API, etc. This confirms that the Data API gateway is up and running.
+  Now, with the port-forward in place, open a browser to **[http://localhost:30001/swagger-ui/](http://localhost:30001/swagger-ui/)**. This will bring up the Swagger UI for the Stargate Data APIs. You can explore the available REST endpoints and even execute test calls from this interface. For instance, you’ll see sections for the Document API, CQL API, etc. This confirms that the Data API gateway is up and running.
 
 * *Test a Data API Operation:* Let’s use the Data API to create a new keyspace in our cluster via an HTTP call. The Data API requires an authentication token since our cluster is secured (by default, Mission Control-enabled clusters have authentication on, unless you explicitly disabled it). We need a token in the format `Cassandra:BASE64_ENCODED_USERNAME:BASE64_ENCODED_PASSWORD`.
 
@@ -154,7 +154,7 @@ Once the UI indicates all nodes are **Up** (usually shown in green or with a che
   Using this token, we’ll call the Data API. The Stargate Document API provides a GraphQL-like JSON interface. For example, to create a new keyspace named “demo” with simple replication, we can send a POST to the base API endpoint:
 
   ```bash
-  curl -sS --location -X POST "http://localhost:30005/v1/" \
+  curl -sS --location -X POST "http://localhost:30001/v1/" \
     --header "Content-Type: application/json" \
     --header "Token: Cassandra:aGNkLXN1cGVydXNlcg==:cGFzc3dvcmQ=" \
     --data '{"createKeyspace": {"name": "demo", "replication": {"class": "SimpleStrategy", "replication_factor": 3}}}'
