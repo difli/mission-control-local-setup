@@ -24,7 +24,7 @@
 
 **Kubernetes Environment:** In this workshop, DataStax Mission Control is deployed on a Kubernetes cluster which serves as the **control plane** for managing Cassandra/HCD. For simplicity, the control plane and data plane will be the same K8s cluster in our setup (for example, an Amazon EKS cluster or a local KinD cluster), meaning the Cassandra nodes will be launched as pods in this Kubernetes cluster. This unified approach is easier for workshop purposes, though Mission Control can also manage external data planes if needed.
 
-> 🛠️ *Attendees are expected to install Mission Control as part of the workshop exercises.* (If you haven’t, refer to the provided setup instructions before proceeding with the labs.)
+> 🛠️ *Attendees are expected to install Mission Control as part of the workshop exercises.* If you haven’t done so, **please refer to the provided setup guide (README)** for installing Mission Control (for example, using KOTS on a local KinD cluster or on an EC2 instance). The step-by-step instructions in the [Mission Control Local Setup README](https://github.com/difli/mission-control-local-setup/blob/main/README.md) cover the installation process. Once Mission Control is up and running on your Kubernetes environment, proceed with the labs below.
 
 Some setup resources and examples used for this workshop:
 
@@ -54,6 +54,8 @@ With these concepts in mind, let’s proceed to the hands-on labs. Each lab will
 
 *Objective:* Verify that DataStax Mission Control is up and running, and familiarize yourself with the environment before creating a database cluster.
 
+> **Prerequisite:** Before starting this lab, ensure that Mission Control has been installed on your Kubernetes cluster (as mentioned in the setup section above). If not, follow the **Mission Control installation instructions in the workshop README** to set up Mission Control and the Mission Control UI. Once the Mission Control control plane is running, you can proceed with the steps below.
+
 **Step 1 – Access the Mission Control UI:** Open your web browser to the Mission Control interface. If you’re running Mission Control locally (for example, via KinD), you may need to port-forward the service to access the UI. For instance, you could run:
 
 ```bash
@@ -70,23 +72,32 @@ Then browse to `http://localhost:8080`. In a cloud deployment (like on EKS), you
 
 ## Lab 2: Creating a Cassandra/HCD Cluster with Mission Control
 
-In this lab, we will create a new Cassandra cluster (using DataStax HCD) through the Mission Control UI. This demonstrates how easy it is to spin up a fully configured Cassandra cluster with just a few clicks, compared to manual provisioning.
+In this lab, we will create a new Cassandra cluster (using DataStax HCD) through the Mission Control UI. This will demonstrate how easy it is to spin up a fully configured Cassandra cluster with just a few clicks, compared to manual provisioning.
+
+*(The cluster creation process is also outlined in the setup README; you can refer to the **Mission Control Local Setup guide** for additional context, but we will walk through the steps here.)*
 
 **Step 3 – Start Cluster Creation:** In the Mission Control UI, make sure your project (e.g., “Workshop”) is selected. Click the **“Create Cluster”** button. This will open a cluster provisioning wizard or form. If prompted to choose between modes, select the **“Simple” (GUI) mode** for cluster creation (as opposed to the expert YAML mode). The Simple mode provides a form-driven experience for defining your cluster.
 
 **Step 4 – Enter Cluster Details:** Fill out the cluster creation form with the desired settings:
 
 * **Cluster Name:** Enter a name for your cluster, for example **`demo-cluster`** (cluster names must be unique and DNS-friendly; once set, the name cannot be changed).
+
 * **Cluster Type:** Select **DataStax Hyper-Converged Database (HCD)** as the database type.
+
 * **Server Version:** Choose the version of HCD to deploy, for example **HCD 1.1.0** (or the latest available version in the dropdown). *(Mission Control also supports deploying Apache Cassandra or DataStax Enterprise clusters through this interface, but we’ll use HCD for this exercise.)*
+
 * **Topology & Size:** Define the datacenter and node layout. For this lab, configure a single datacenter:
 
   * **Datacenter Name:** e.g., `dc1` (you can use any name; note that datacenter names in Cassandra must be a single word, no spaces).
   * **Rack (Zone) Configuration:** If prompted for a rack name, enter `rack1` (or use the default). We will use one rack for simplicity.
   * **Nodes per Rack:** Set **3 nodes** for `rack1`. This will create a 3-node cluster in one datacenter. Three nodes is a common minimal cluster size that still provides replication (RF=3) for fault tolerance.
+
 * **Storage and Hardware:** Select a storage class for persistent volumes if required. Use the default provided by your Kubernetes cluster (for example, on EKS this might be “gp2”, on a local KinD cluster it might be “standard”). Enter the storage amount per node (e.g., 10 or 20 GB for a workshop environment). Also specify resource requests if the form asks (the default might be 4 CPU / 4 GB RAM per node; for a demo you can leave defaults).
+
 * **Configuration Settings:** Mission Control will apply a default `cassandra.yaml` configuration suitable for HCD/Cassandra. You typically do not need to add custom configuration for a basic deployment. (There is usually an option to add custom Cassandra configuration entries, but we will skip that and use the default settings which are fine for now.)
-* **Security Settings:** For this workshop cluster, you can leave authentication and encryption at their defaults. (In production, you would enable **Password Authentication** and supply a superuser name and password, and possibly enable **TLS encryption** for internode and client traffic. For simplicity in our lab, we may use the default credentials or an easy superuser password.)
+
+* **Security Settings:** For this workshop cluster, you can leave authentication and encryption at their defaults. (In production, you would enable **Password Authentication** and supply a superuser name and password, and possibly enable **TLS encryption** for internode and client traffic. For simplicity in our lab, we may use the default credentials or set an easy superuser password.)
+
 * **Backup Settings:** You may see options to configure backup storage or schedules. We will configure backups later, so you can skip or leave these as default for now (unless a default backup configuration is required by the form).
 
 Review the form and ensure all required fields are filled in. At this point, your screen should look similar to the following example, with the cluster name, type (HCD), version selected, one datacenter (`dc1`) with 3 nodes defined, and default storage/config options:
@@ -116,7 +127,7 @@ Once the UI indicates all nodes are **Up** (usually shown in green or with a che
   * Select the datacenter (choose **dc1** if prompted for which datacenter to expose).
   * For **Replicas**, enter **1** (one Stargate node is sufficient for development/testing; in production you might run 2+ for HA).
   * For **Service Type**, choose **NodePort** (this will expose the API on a port accessible outside the cluster nodes; the other option is ClusterIP which is internal-only).
-  * For **Port Number**, specify a port in the 30000-32767 range (the NodePort range). For example, enter ****.
+  * For **Port Number**, specify a port in the 30000-32767 range (the NodePort range). For example, enter **30001**.
   * Click **Add Gateway** to deploy the Data API gateway.
 
   Mission Control will now deploy a Stargate Data API pod (or pods) in the cluster’s namespace. Within a minute, you should see a new pod (and a service) for the Data API. Once it’s running, the Data API gateway is active. The UI will list the gateway (with the datacenter and port info) in the APIs section.
