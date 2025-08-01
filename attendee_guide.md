@@ -187,7 +187,7 @@ By default, Mission Control’s monitoring dashboard shows metrics such as **CPU
 
 After generating some load, observe the graphs. You might see a spike in write operations or a change in CPU usage corresponding to your activity. You can adjust the time window of the charts if the UI allows (for example, show last 5 minutes vs last 1 hour) to zoom in on the activity. Mission Control is using an internal **Prometheus** instance to collect these metrics from each node, and it presents them in a built-in dashboard – meaning you didn’t have to set up Prometheus or Grafana yourself. The monitoring is automatically configured when the cluster is created.
 
-![Mission Control cluster monitoring dashboard (sample graphs of throughput, latency, etc.)](./images/cluster-monitoring.png)
+![Mission Control cluster monitoring dashboard (sample graphs of throughput, latency, etc.)](./assets/mission-control-ui-hcd-monitoring.png)
 
 **Step 10 – Drill Down into Node Metrics:** The Mission Control UI allows you to inspect metrics at the node level as well. You may be able to filter the dashboard by datacenter or by individual node. For example, there might be a dropdown or clickable list of nodes; selecting a specific node (say, `demo-cluster-dc1-rack1-sts-0`) would show that node’s CPU, memory, and latency charts. This is useful for diagnosing hotspots or imbalance – e.g., if one node is handling more load or using more resources than others. In a healthy, balanced cluster, the nodes should show similar patterns for throughput and latency.
 
@@ -238,7 +238,7 @@ In some installation modes (like KOTS), Grafana is disabled by default. We will 
 
 5. **View Metrics in Grafana:** Open one of the Cassandra dashboards. You should see the same metrics (throughput, latency, etc.) that Mission Control’s UI showed, but now in Grafana’s interface. You can interact with these graphs, apply Grafana’s rich filtering and visualization options, or even create new custom dashboards combining Cassandra metrics with other data sources if needed.
 
-![Grafana dashboard for Cassandra metrics (via Mission Control integration)](./images/grafana-dashboard.png)
+![Grafana dashboard for Cassandra metrics (via Mission Control integration)](./assets/grafana.png)
 
 Grafana gives you flexibility to slice and dice metrics beyond the default UI. However, keep in mind that Mission Control’s built-in UI is sufficient for most day-to-day monitoring. The Grafana integration is there if you have advanced needs or want to integrate with existing monitoring workflows. You could, for example, set up Grafana alerts or export dashboards to share with others.
 
