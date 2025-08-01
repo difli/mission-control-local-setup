@@ -327,14 +327,94 @@ Everything should be functioning normally. Mission Control’s upgrade workflow 
 
 Regular backups are essential for any database. Mission Control simplifies Cassandra backups by coordinating them across the cluster and storing the backup data in an external location (such as a cloud storage bucket). In this lab, we will configure a backup target and take a full backup of our cluster’s data. We’ll also discuss how a restore would be performed.
 
-**Step 19 – Configure Backup Storage:** In the Mission Control UI, navigate to the **Backup** section for your cluster. This might be under a “Maintenance” menu or a tab labeled **“Backups/Restore.”** Before we initiate a backup, we need to ensure Mission Control knows where to store the backup. Typically, this involves:
+**Step 19 – Configure Backup Storage (Medusa Integration): ** First, we need to configure the backup storage and credentials **before** creating the cluster. Mission Control uses a Kubernetes Secret to store cloud storage credentials, and the cluster’s custom resource must reference this secret in its Medusa configuration. **It is crucial to create the secret *before* deploying the cluster**, otherwise the Cassandra pods will wait indefinitely for the backup secret to appear.
 
-* Setting up a **Backup Location** (for example, an AWS S3 bucket, a Google Cloud Storage bucket, an Azure Blob container, or a local MinIO service) and
-* Providing credentials (access keys) for that storage.
+Create the Medusa credentials Secret:** Create a secret named `medusa-bucket-key` in your namespace with the S3/MinIO access keys. Use the manifest below, adjusting only the `metadata.namespace` to your assigned namespace (keep all other values, including the bucket name, unchanged):
 
-For the purposes of this workshop, assume that a backup location has already been configured (perhaps by the instructor or as part of the Mission Control installation). For example, let’s say an Amazon S3 bucket named “my-cassandra-backups” has been set up and the AWS credentials are stored in Kubernetes. Mission Control allows you to define a **Backup Configuration** (which includes the bucket info and credential secret) and associate it with clusters.
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: medusa-bucket-key
+  namespace: <YOUR-NAMESPACE>    # Replace with your namespace
+type: Opaque
+stringData:
+  credentials: |-
+    [default]
+    aws_access_key_id = minioadmin
+    aws_secret_access_key = minioadmin
+```
 
-Verify in the UI if a default backup configuration is available or if the cluster has one set. If not, you would create one (this typically involves providing the bucket URI, region, and the secret that contains access keys). In our scenario, we’ll assume a backup config is already in place.
+* The above uses the default MinIO credentials (`minioadmin/minioadmin`).
+* **Do not change** the `name` of the secret or the keys inside; Mission Control expects this format.
+* Apply the secret manifest with `kubectl apply -f medusa-secret.yaml` (assuming you saved it to a file). Verify the secret is created (e.g., `kubectl get secret medusa-bucket-key -n <YOUR-NAMESPACE>`).
+
+Deploy a Cassandra cluster with Medusa enabled:** Now we will create a **MissionControlCluster** custom resource that defines a Cassandra (HCD) cluster with Medusa backup support. Below is the cluster manifest. You must update the `metadata.namespace` to your namespace. **Keep** the `bucketName` (`mc-medusa`) and the `prefix` as provided (they are pre-configured for this lab’s MinIO bucket):
+
+```yaml
+apiVersion: missioncontrol.datastax.com/v1beta2
+kind: MissionControlCluster
+metadata:
+  name: hcd
+  namespace: <YOUR-NAMESPACE>         # Replace with your namespace
+spec:
+  createIssuer: true
+  dataApi: {}
+  encryption:
+    internodeEncryption:
+      certs:
+        createCerts: true
+      enabled: true
+  k8ssandra:
+    medusa:
+      storageProperties:
+        storageProvider: s3_compatible        # Using an S3-compatible storage (MinIO)
+        bucketName: mc-medusa                # Pre-created bucket for backups (do not change)
+        prefix: test                        # Prefix within the bucket for this cluster's backups
+        storageSecretRef:
+          name: medusa-bucket-key           # Reference to the Secret created in Step 1
+        host: mission-control-minio.mission-control.svc.cluster.local   # MinIO service endpoint
+        port: 9000                          # MinIO service port
+        secure: false                       # Using HTTP (not HTTPS) for MinIO
+    auth: true
+    cassandra:
+      config:
+        cassandraYaml: {}
+        dseYaml: {}
+        jvmOptions:
+          gc: G1GC
+          heapSize: 1Gi
+      datacenters:
+        - datacenterName: dc-1
+          size: 1
+          racks:
+            - name: r1
+          # (Additional datacenter config omitted for brevity)
+      resources:
+        requests:
+          cpu: 1000m
+          memory: 4Gi
+      serverType: hcd
+      serverVersion: 1.1.0
+      storageConfig:
+        cassandraDataVolumeClaimSpec:
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: 2Gi
+          storageClassName: standard
+      superuserSecretRef:
+        name: hcd-superuser
+```
+
+* This manifest enables Medusa by adding the `spec.k8ssandra.medusa` section with **storage properties** pointing to our S3-compatible bucket. The `medusa.storageProperties` include:
+
+  * `storageProvider: s3_compatible` (for MinIO or other S3-like storage),
+  * `bucketName: mc-medusa` (the bucket where backups will be stored),
+  * `prefix: test` (a subdirectory prefix for organizing this cluster’s backups),
+  * `storageSecretRef.name: medusa-bucket-key` (the secret with credentials),
+  * `host`, `port`, and `secure` settings for connecting to the MinIO service.
+* Apply this cluster manifest with `kubectl apply -f hcd-cluster-medusa.yaml`. Mission Control will begin provisioning the Cassandra cluster (with one datacenter `dc-1` and one node in this example).
 
 **Step 20 – Initiate a Backup:** Now click the **“Backup Now”** (or **“Take Backup”**) button in the UI. Mission Control will prompt you for some options:
 
